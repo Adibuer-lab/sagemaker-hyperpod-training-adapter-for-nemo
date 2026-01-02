@@ -3,6 +3,8 @@
 
 import argparse
 import os
+import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -126,6 +128,43 @@ def _get_qwen25_config():
     raise AttributeError("Unable to locate Qwen2.5 config in nemo.collections.llm")
 
 
+def _run_single_process_import(hf_model_id: str, output_path: Path) -> None:
+    """Run HF -> NeMo import in a clean, single-process env to avoid DDP init."""
+    code = (
+        "from pathlib import Path\n"
+        "import nemo.collections.llm as llm\n"
+        "def _get_qwen25_config():\n"
+        "    for name in ('Qwen25Config14B','Qwen25Config'):\n"
+        "        cfg = getattr(llm, name, None)\n"
+        "        if cfg is not None:\n"
+        "            return cfg()\n"
+        "    raise AttributeError('Unable to locate Qwen2.5 config in nemo.collections.llm')\n"
+        "output_path = Path(" + repr(str(output_path)) + ")\n"
+        "llm.import_ckpt(\n"
+        "    model=llm.Qwen2Model(_get_qwen25_config()),\n"
+        "    source=" + repr(f\"hf://{hf_model_id}\") + ",\n"
+        "    output_path=output_path,\n"
+        "    overwrite=False,\n"
+        ")\n"
+    )
+    env = os.environ.copy()
+    for key in (
+        "RANK",
+        "LOCAL_RANK",
+        "NODE_RANK",
+        "WORLD_SIZE",
+        "LOCAL_WORLD_SIZE",
+        "MASTER_ADDR",
+        "MASTER_PORT",
+        "SLURM_PROCID",
+        "SLURM_LOCALID",
+        "SLURM_NODEID",
+        "SLURM_NTASKS",
+    ):
+        env.pop(key, None)
+    subprocess.check_call([sys.executable, "-c", code], env=env)
+
+
 def _maybe_import_ckpt(hf_model_id: str, output_path: Path, skip_import: bool) -> Path:
     if skip_import:
         return output_path
@@ -133,22 +172,29 @@ def _maybe_import_ckpt(hf_model_id: str, output_path: Path, skip_import: bool) -
     output_path.parent.mkdir(parents=True, exist_ok=True)
     sentinel = Path(str(output_path) + ".done")
     rank = _get_rank()
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
+
+    if output_path.exists() or sentinel.exists():
+        if rank == 0:
+            sentinel.write_text("ok")
+        return output_path
+
+    if world_size > 1 and rank != 0:
+        _wait_for_path(sentinel)
+        return output_path
 
     if rank == 0:
-        if output_path.exists() or sentinel.exists():
-            sentinel.write_text("ok")
-            return output_path
-
         # Convert HF → NeMo once (shared filesystem required).
-        llm.import_ckpt(
-            model=llm.Qwen2Model(_get_qwen25_config()),
-            source=f"hf://{hf_model_id}",
-            output_path=output_path,
-            overwrite=False,
-        )
+        if world_size > 1:
+            _run_single_process_import(hf_model_id, output_path)
+        else:
+            llm.import_ckpt(
+                model=llm.Qwen2Model(_get_qwen25_config()),
+                source=f"hf://{hf_model_id}",
+                output_path=output_path,
+                overwrite=False,
+            )
         sentinel.write_text("ok")
-    else:
-        _wait_for_path(sentinel)
 
     return output_path
 
@@ -195,8 +241,17 @@ def main() -> None:
     if not restore_path:
         restore_path = str(import_output)
 
-    # If user explicitly provides nemo:// restore path, skip import.
-    skip_import = args.skip_import or restore_path.startswith("nemo://")
+    restore_path_obj = Path(restore_path) if restore_path else None
+    # If user explicitly provides nemo:// restore path or a local artifact exists, skip import.
+    skip_import = args.skip_import or restore_path.startswith("nemo://") or (
+        restore_path_obj is not None and restore_path_obj.exists()
+    )
+    if skip_import and not restore_path.startswith("nemo://"):
+        if restore_path_obj is None or not restore_path_obj.exists():
+            raise FileNotFoundError(
+                f"Restore path not found: {restore_path_obj}. "
+                "Run the HF→NeMo import first or unset --skip-import."
+            )
     _maybe_import_ckpt(args.hf_model_id, import_output, skip_import)
 
     FineTuningDataModule = _resolve_finetune_data_module()
