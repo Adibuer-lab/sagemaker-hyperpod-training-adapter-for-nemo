@@ -30,7 +30,8 @@ exp_manager:
     every_n_train_steps: 0
     save_last: False
 
-use_smp_model: True
+# Qwen2 is not supported by SMP TP registry yet; use FSDP-only by default.
+use_smp_model: False
 distributed_backend: nccl
 
 # Start training from pretrained model
