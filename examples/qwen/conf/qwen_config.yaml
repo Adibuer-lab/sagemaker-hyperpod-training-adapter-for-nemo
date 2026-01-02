@@ -60,9 +60,14 @@ model:
   use_orig_param: False
 
   # Qwen2.5 defaults (keep generic; HF config supplies architecture)
-  max_context_width: 4096
+  max_context_width: 8192
+  max_position_embeddings: 131072
   rope_theta: 1000000.0
   rms_norm_eps: 1.0e-6
+  rope_scaling:
+    rope_type: yarn
+    factor: 4.0
+    original_max_position_embeddings: 32768
 
   # FP8 config
   fp8: False

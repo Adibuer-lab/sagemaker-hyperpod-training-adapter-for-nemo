@@ -27,7 +27,7 @@ CONFIG_MAPPING_HF_TO_RECIPE_ALIASES = {
     "intermediate_size": ["intermediate_size"],
     "num_hidden_layers": ["num_hidden_layers", "num_layers"],
     "num_attention_heads": ["num_attention_heads", "num_heads"],
-    "max_position_embeddings": ["max_context_width"],
+    "max_position_embeddings": ["max_context_width", "max_position_embeddings"],
     "initializer_range": ["initializer_range"],
     "num_key_value_heads": ["num_key_value_heads"],
     "rms_norm_eps": ["layernorm_epsilon", "rms_norm_eps"],

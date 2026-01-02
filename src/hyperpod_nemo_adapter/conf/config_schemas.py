@@ -135,11 +135,17 @@ class BaseModelOptimizerConfig(BaseModel):
 
 class BaseRopeScalingConfig(BaseModel):
     # rope scaling
-    rope_type: Literal["llama3", None] = None
+    rope_type: Literal["llama3", "yarn", None] = None
     factor: float = Field(default=8.0)
     high_freq_factor: float = Field(default=4.0)
     low_freq_factor: float = Field(default=1.0)
     original_max_position_embeddings: int = Field(default=8192)
+
+    @model_validator(mode="before")
+    def _normalize_rope_type(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "rope_type" not in data and "type" in data:
+            data["rope_type"] = data.pop("type")
+        return data
 
 
 class BaseModelDataConfig(BaseModel):

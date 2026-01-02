@@ -11,9 +11,11 @@
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
 
+from omegaconf import OmegaConf
 from transformers import Qwen2Config
 
 from hyperpod_nemo_adapter.collections.model import SageMakerNLPBaseModel
+from hyperpod_nemo_adapter.constants import CONFIG_MAPPING_HF_TO_RECIPE_ALIASES
 from hyperpod_nemo_adapter.utils.config_utils import get_hf_config_from_name_or_path
 
 
@@ -23,6 +25,12 @@ class SageMakerQwenModel(SageMakerNLPBaseModel):
     """
 
     predefined_model = True
+
+    def set_config_mapping_hf_to_recipe_aliases(self):
+        config_map = dict(CONFIG_MAPPING_HF_TO_RECIPE_ALIASES)
+        if OmegaConf.select(self._cfg, "rope_scaling.rope_type") is not None:
+            config_map["rope_scaling"] = ["rope_scaling"]
+        self._config_mapping_hf_to_recipe_aliases = config_map
 
     def get_model_config(self):
         """
