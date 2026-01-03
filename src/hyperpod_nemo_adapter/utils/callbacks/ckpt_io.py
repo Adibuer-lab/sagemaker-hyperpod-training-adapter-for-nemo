@@ -14,7 +14,7 @@
 from typing import Any, Dict, Optional
 
 import lightning.pytorch as pl
-from lightning_fabric.plugins import CheckpointIO
+from lightning.pytorch.plugins.io import CheckpointIO
 from lightning_fabric.utilities.types import _PATH
 from nemo.utils import logging
 from transformers import AutoModelForCausalLM

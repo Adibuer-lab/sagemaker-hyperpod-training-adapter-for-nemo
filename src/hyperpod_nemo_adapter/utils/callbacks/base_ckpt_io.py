@@ -11,7 +11,7 @@
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
 
-from lightning_fabric.plugins import CheckpointIO
+from lightning.pytorch.plugins.io import CheckpointIO
 from torch.sagemaker.distributed.checkpoint.s3_filesystem import (
     format_s3_path,
     get_s3_region_from_uri,
