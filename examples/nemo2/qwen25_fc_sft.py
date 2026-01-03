@@ -213,7 +213,7 @@ def parse_args():
     parser.add_argument("--max-steps", type=int, default=50)
     parser.add_argument("--learning-rate", type=float, default=1e-5)
     parser.add_argument("--warmup-steps", type=int, default=5)
-    parser.add_argument("--val-check-interval", type=int, default=200)
+    parser.add_argument("--val-check-interval", type=float, default=1.0)
     parser.add_argument("--log-every-n-steps", type=int, default=1)
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--peft-scheme", default="none", choices=["none", "lora"])
