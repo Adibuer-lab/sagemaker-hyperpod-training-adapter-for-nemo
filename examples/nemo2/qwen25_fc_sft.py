@@ -142,7 +142,7 @@ def _run_single_process_import(hf_model_id: str, output_path: Path) -> None:
         "output_path = Path(" + repr(str(output_path)) + ")\n"
         "llm.import_ckpt(\n"
         "    model=llm.Qwen2Model(_get_qwen25_config()),\n"
-        "    source=" + repr(f\"hf://{hf_model_id}\") + ",\n"
+        "    source=" + repr(f"hf://{hf_model_id}") + ",\n"
         "    output_path=output_path,\n"
         "    overwrite=False,\n"
         ")\n"
