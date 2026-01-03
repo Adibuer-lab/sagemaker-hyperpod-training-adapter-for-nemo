@@ -12,7 +12,7 @@
 # language governing permissions and limitations under the License.
 import torch
 from omegaconf import DictConfig
-from pytorch_lightning import Trainer
+from lightning.pytorch import Trainer
 from transformers import default_data_collator
 
 from hyperpod_nemo_adapter.collections.data.base import BaseDataModule

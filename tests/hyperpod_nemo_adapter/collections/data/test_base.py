@@ -14,8 +14,8 @@
 import os
 
 from omegaconf import DictConfig
-from pytorch_lightning import Trainer
-from pytorch_lightning.core.datamodule import LightningDataModule
+from lightning.pytorch import Trainer
+from lightning.pytorch.core.datamodule import LightningDataModule
 from torch.distributed import init_process_group
 from torch.utils.data import DataLoader
 

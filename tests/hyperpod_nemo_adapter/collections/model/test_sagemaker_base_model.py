@@ -16,7 +16,7 @@ from nemo.core.classes.modelPT import ModelPT
 from omegaconf import OmegaConf
 from omegaconf.dictconfig import DictConfig
 from packaging import version as pversion
-from pytorch_lightning import Trainer
+from lightning.pytorch import Trainer
 
 import hyperpod_nemo_adapter.collections.model.sagemaker_base_model as sbm
 

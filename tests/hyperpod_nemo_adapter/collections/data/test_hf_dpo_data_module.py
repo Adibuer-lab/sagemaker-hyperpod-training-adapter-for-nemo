@@ -14,7 +14,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from omegaconf import OmegaConf
-from pytorch_lightning import Trainer
+from lightning.pytorch import Trainer
 
 from hyperpod_nemo_adapter.collections.data import HuggingFaceDPODataModule
 

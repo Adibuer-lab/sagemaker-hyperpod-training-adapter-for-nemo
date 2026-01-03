@@ -20,10 +20,10 @@ from copy import deepcopy
 from dataclasses import dataclass
 from typing import Dict, Optional, Union
 
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 import torch
 from nemo.utils import logging
-from pytorch_lightning.callbacks import Checkpoint
+from lightning.pytorch.callbacks import Checkpoint
 from torch import Tensor
 from torch.sagemaker import state
 from torch.sagemaker.distributed.checkpoint.s3_filesystem import is_s3_uri

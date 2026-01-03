@@ -19,7 +19,7 @@ import os
 from unittest.mock import MagicMock, patch
 
 import pytest
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 from lightning.pytorch.trainer.connectors.checkpoint_connector import (
     _CheckpointConnector,
 )

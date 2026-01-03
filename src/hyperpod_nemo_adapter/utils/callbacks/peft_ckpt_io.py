@@ -15,7 +15,7 @@ import os
 from datetime import timedelta
 from typing import Any, Dict, Optional
 
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 import torch.distributed as dist
 import torch.sagemaker.distributed.checkpoint.state_dict_loader as loader
 import transformers

@@ -17,7 +17,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 import torch.distributed as dist
 from lightning.pytorch.callbacks import Callback
 from nemo.utils import logging

@@ -17,7 +17,7 @@ import sys
 
 from nemo.lightning.pytorch.callbacks import NsysCallback
 from omegaconf import DictConfig, OmegaConf
-from pytorch_lightning import Trainer
+from lightning.pytorch import Trainer
 
 from hyperpod_nemo_adapter.collections.data import (
     DummyDataModule,

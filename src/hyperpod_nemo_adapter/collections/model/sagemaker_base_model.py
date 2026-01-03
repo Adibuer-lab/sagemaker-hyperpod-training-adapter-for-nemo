@@ -27,7 +27,7 @@ from omegaconf import open_dict
 from omegaconf.dictconfig import DictConfig
 from packaging import version as pversion
 from peft import LoraConfig, PeftModel, get_peft_model
-from pytorch_lightning import Trainer
+from lightning.pytorch import Trainer
 from torch.sagemaker import transform
 from torch.sagemaker.context_parallel.utils import setup_transformer_engine_cp_groups
 from torch.sagemaker.grad_norm import clip_grad_norm_

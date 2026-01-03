@@ -12,7 +12,7 @@
 # language governing permissions and limitations under the License.
 
 from omegaconf import DictConfig
-from pytorch_lightning import Trainer
+from lightning.pytorch import Trainer
 
 from hyperpod_nemo_adapter.collections.data.base import BaseDataModule
 from hyperpod_nemo_adapter.collections.data.datasets.hf_dpo_dataset import (

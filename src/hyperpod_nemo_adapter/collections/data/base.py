@@ -16,8 +16,8 @@ from typing import Callable, Optional
 import torch
 from nemo.utils import logging
 from omegaconf import DictConfig
-from pytorch_lightning import Trainer
-from pytorch_lightning.core.datamodule import LightningDataModule
+from lightning.pytorch import Trainer
+from lightning.pytorch.core.datamodule import LightningDataModule
 from torch.utils.data import DataLoader
 
 from hyperpod_nemo_adapter.constants import (

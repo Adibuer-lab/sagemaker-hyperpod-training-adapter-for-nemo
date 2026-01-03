@@ -12,7 +12,7 @@
 # language governing permissions and limitations under the License.
 
 from nemo.collections.nlp.parts.nlp_overrides import NLPFSDPStrategy
-from pytorch_lightning import Trainer
+from lightning.pytorch import Trainer
 
 from hyperpod_nemo_adapter.collections.parts.fsdp_strategy import SageMakerFSDPStrategy
 from hyperpod_nemo_adapter.utils.app_state import SageMakerAppState
