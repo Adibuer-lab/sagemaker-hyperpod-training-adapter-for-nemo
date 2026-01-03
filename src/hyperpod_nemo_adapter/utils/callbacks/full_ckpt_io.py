@@ -16,7 +16,8 @@ from typing import Any, Dict, Optional
 
 import torch.distributed as dist
 from lightning.pytorch.plugins.io import TorchCheckpointIO
-from lightning_fabric.utilities.types import _PATH
+
+from hyperpod_nemo_adapter.utils.lightning_compat import _PATH
 
 
 class SageMakerFullCheckpointIO(TorchCheckpointIO):

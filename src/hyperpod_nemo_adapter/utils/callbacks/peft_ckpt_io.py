@@ -19,7 +19,6 @@ import lightning.pytorch as pl
 import torch.distributed as dist
 import torch.sagemaker.distributed.checkpoint.state_dict_loader as loader
 import transformers
-from lightning_fabric.utilities.types import _PATH
 from nemo.utils import logging
 from packaging import version as pversion
 from peft import PeftModel
@@ -38,6 +37,7 @@ from hyperpod_nemo_adapter.utils.callbacks.base_ckpt_io import SageMakerBaseChec
 from hyperpod_nemo_adapter.utils.callbacks.sharded_ckpt_io import (
     SageMakerShardedCheckpointIO,
 )
+from hyperpod_nemo_adapter.utils.lightning_compat import _PATH
 
 
 class SageMakerPeftFullCheckpointIO(SageMakerBaseCheckpointIO):

@@ -15,7 +15,7 @@ import os
 from unittest.mock import MagicMock, patch
 
 import pytest
-from lightning_fabric.plugins import TorchCheckpointIO
+from lightning.pytorch.plugins.io import TorchCheckpointIO
 
 from hyperpod_nemo_adapter.utils.callbacks.full_ckpt_io import SageMakerFullCheckpointIO
 

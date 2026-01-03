@@ -22,7 +22,6 @@ import torch.distributed as dist
 import torch.sagemaker as tsm
 import transformers
 from accelerate.utils import FullyShardedDataParallelPlugin
-from lightning_fabric.utilities.types import _PATH
 from nemo.collections.nlp.parts.nlp_overrides import NLPFSDPStrategy
 from nemo.utils import logging
 from omegaconf.dictconfig import DictConfig
@@ -59,6 +58,7 @@ if TF_VERSION >= pversion.parse("4.51.1"):
 from hyperpod_nemo_adapter.collections.model.nlp.custom_models.modeling_deepseek import (
     DeepseekV3ForCausalLM,
 )
+from hyperpod_nemo_adapter.utils.lightning_compat import _PATH
 from hyperpod_nemo_adapter.constants import (
     OPTIMIZER_KEY_PREFIX,
     SageMakerCheckpointType,

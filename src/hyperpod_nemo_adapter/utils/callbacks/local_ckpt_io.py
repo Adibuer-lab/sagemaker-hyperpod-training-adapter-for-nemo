@@ -21,7 +21,6 @@ import lightning.pytorch as pl
 import torch
 import torch.distributed as dist
 import torch.sagemaker.distributed.checkpoint.state_dict_saver as saver
-from lightning_fabric.utilities.types import _PATH
 from nemo.utils import logging
 from s3torchconnectorclient._mountpoint_s3_client import S3Exception
 from torch import multiprocessing as mp
@@ -42,6 +41,7 @@ from torch.sagemaker.distributed.checkpoint.state_dict_utils import init_optim_s
 
 from hyperpod_nemo_adapter.utils.app_state import SageMakerAppState
 from hyperpod_nemo_adapter.utils.callbacks.base_ckpt_io import SageMakerBaseCheckpointIO
+from hyperpod_nemo_adapter.utils.lightning_compat import _PATH
 
 
 def _subdir():

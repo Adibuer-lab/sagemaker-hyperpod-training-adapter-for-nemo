@@ -17,8 +17,6 @@ import lightning.pytorch as pl
 import torch.distributed as dist
 import torch.sagemaker.distributed.checkpoint.state_dict_loader as loader
 import torch.sagemaker.distributed.checkpoint.state_dict_saver as saver
-from lightning.fabric.utilities.cloud_io import get_filesystem
-from lightning_fabric.utilities.types import _PATH
 from nemo.utils import logging
 from torch.sagemaker.distributed.checkpoint.async_utils import AsyncCallsQueue
 from torch.sagemaker.distributed.checkpoint.filesystem import (
@@ -26,6 +24,7 @@ from torch.sagemaker.distributed.checkpoint.filesystem import (
 )
 
 from hyperpod_nemo_adapter.utils.callbacks.base_ckpt_io import SageMakerBaseCheckpointIO
+from hyperpod_nemo_adapter.utils.lightning_compat import _PATH, get_filesystem
 
 
 class SageMakerShardedCheckpointIO(SageMakerBaseCheckpointIO):

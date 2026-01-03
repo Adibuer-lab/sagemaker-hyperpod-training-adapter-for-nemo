@@ -15,7 +15,6 @@ from typing import Any, Dict, Optional
 
 import lightning.pytorch as pl
 from lightning.pytorch.plugins.io import CheckpointIO
-from lightning_fabric.utilities.types import _PATH
 from nemo.utils import logging
 from transformers import AutoModelForCausalLM
 
@@ -34,6 +33,7 @@ from hyperpod_nemo_adapter.utils.callbacks.peft_ckpt_io import (
 from hyperpod_nemo_adapter.utils.callbacks.sharded_ckpt_io import (
     SageMakerShardedCheckpointIO,
 )
+from hyperpod_nemo_adapter.utils.lightning_compat import _PATH
 
 
 class SageMakerCheckpointIO(CheckpointIO):
