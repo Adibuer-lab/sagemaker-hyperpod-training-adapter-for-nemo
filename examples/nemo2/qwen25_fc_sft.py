@@ -23,6 +23,17 @@ def _get_rank() -> int:
     return 0
 
 
+def _normalize_optional_str(value) -> str | None:
+    if value is None:
+        return None
+    val = str(value).strip()
+    if not val:
+        return None
+    if val.lower() in {"none", "null", "off"}:
+        return None
+    return val
+
+
 def _wait_for_path(path: Path, timeout_s: int = 7200, poll_s: int = 10) -> None:
     start = time.time()
     while not path.exists():
@@ -117,6 +128,71 @@ def _apply_yarn(model_cfg, seq_length: int) -> bool:
         except Exception:
             pass
 
+    return applied
+
+
+def _apply_recompute_config(
+    finetune,
+    granularity: str | None,
+    method: str | None,
+    num_layers: int | None,
+) -> bool:
+    applied = False
+    gran = _normalize_optional_str(granularity)
+    meth = _normalize_optional_str(method)
+    num = num_layers if isinstance(num_layers, int) and num_layers > 0 else None
+
+    if gran is None and meth is None and num is None:
+        return False
+
+    model = getattr(finetune, "model", None)
+    for obj in (model, getattr(model, "config", None)):
+        if obj is None:
+            continue
+        if gran is not None and hasattr(obj, "recompute_granularity"):
+            try:
+                setattr(obj, "recompute_granularity", gran)
+                applied = True
+            except Exception:
+                pass
+        if hasattr(obj, "recompute_method"):
+            try:
+                if meth is not None:
+                    setattr(obj, "recompute_method", meth)
+                    applied = True
+                elif gran is not None and not hasattr(obj, "recompute_granularity"):
+                    setattr(obj, "recompute_method", gran)
+                    applied = True
+            except Exception:
+                pass
+        if num is not None and hasattr(obj, "recompute_num_layers"):
+            try:
+                setattr(obj, "recompute_num_layers", num)
+                applied = True
+            except Exception:
+                pass
+        if gran is not None and hasattr(obj, "activations_checkpoint_granularity"):
+            try:
+                setattr(obj, "activations_checkpoint_granularity", gran)
+                applied = True
+            except Exception:
+                pass
+        if hasattr(obj, "activations_checkpoint_method"):
+            try:
+                if meth is not None:
+                    setattr(obj, "activations_checkpoint_method", meth)
+                    applied = True
+                elif gran is not None and not hasattr(obj, "activations_checkpoint_granularity"):
+                    setattr(obj, "activations_checkpoint_method", gran)
+                    applied = True
+            except Exception:
+                pass
+        if num is not None and hasattr(obj, "activations_checkpoint_num_layers"):
+            try:
+                setattr(obj, "activations_checkpoint_num_layers", num)
+                applied = True
+            except Exception:
+                pass
     return applied
 
 
@@ -218,6 +294,22 @@ def parse_args():
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--peft-scheme", default="none", choices=["none", "lora"])
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--recompute-granularity",
+        default="selective",
+        help="Activation recompute granularity (e.g., selective, full, none).",
+    )
+    parser.add_argument(
+        "--recompute-method",
+        default="",
+        help="Activation recompute method for full recompute (e.g., block, uniform).",
+    )
+    parser.add_argument(
+        "--recompute-num-layers",
+        type=int,
+        default=0,
+        help="Number of layers per recompute segment (only used for full recompute).",
+    )
     return parser.parse_args()
 
 
@@ -273,6 +365,14 @@ def main() -> None:
     finetune.trainer.max_steps = args.max_steps
     finetune.trainer.log_every_n_steps = args.log_every_n_steps
     finetune.trainer.val_check_interval = args.val_check_interval
+    applied = _apply_recompute_config(
+        finetune,
+        args.recompute_granularity,
+        args.recompute_method,
+        args.recompute_num_layers,
+    )
+    if (args.recompute_granularity or args.recompute_method or args.recompute_num_layers) and not applied:
+        print("Warning: activation recompute requested but not supported by this recipe/model.")
     if hasattr(finetune.model, "config"):
         _apply_yarn(finetune.model.config, args.seq_length)
     if hasattr(finetune, "optim") and hasattr(finetune.optim, "config"):
