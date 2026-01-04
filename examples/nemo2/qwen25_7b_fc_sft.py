@@ -301,7 +301,9 @@ def parse_args():
     )
     parser.add_argument(
         "--recompute-method",
-        default="",
+        nargs="?",
+        const="none",
+        default="none",
         help="Activation recompute method for full recompute (e.g., block, uniform).",
     )
     parser.add_argument(
