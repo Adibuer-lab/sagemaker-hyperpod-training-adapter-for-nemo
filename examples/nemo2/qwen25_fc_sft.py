@@ -34,6 +34,17 @@ def _normalize_optional_str(value) -> str | None:
     return val
 
 
+def _parse_bool(value, default: bool = False) -> bool:
+    if value is None:
+        return default
+    val = str(value).strip().lower()
+    if val in {"1", "true", "yes", "on"}:
+        return True
+    if val in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
 def _wait_for_path(path: Path, timeout_s: int = 7200, poll_s: int = 10) -> None:
     start = time.time()
     while not path.exists():
@@ -196,6 +207,38 @@ def _apply_recompute_config(
     return applied
 
 
+def _set_attr_if_present(obj, attr: str, value) -> bool:
+    if obj is None:
+        return False
+    if isinstance(obj, dict):
+        if attr in obj:
+            obj[attr] = value
+            return True
+        return False
+    if hasattr(obj, attr):
+        try:
+            setattr(obj, attr, value)
+            return True
+        except Exception:
+            return False
+    return False
+
+
+def _apply_gradient_accumulation_fusion(finetune, enabled: bool) -> bool:
+    applied = False
+    model = getattr(finetune, "model", None)
+    for obj in (
+        finetune,
+        model,
+        getattr(model, "config", None),
+        getattr(getattr(model, "config", None), "model", None),
+        getattr(getattr(model, "config", None), "megatron", None),
+    ):
+        if _set_attr_if_present(obj, "gradient_accumulation_fusion", enabled):
+            applied = True
+    return applied
+
+
 def _get_qwen25_config():
     for name in ("Qwen25Config14B", "Qwen25Config"):
         cfg = getattr(llm, name, None)
@@ -312,6 +355,11 @@ def parse_args():
         default=0,
         help="Number of layers per recompute segment (only used for full recompute).",
     )
+    parser.add_argument(
+        "--gradient-accumulation-fusion",
+        default="false",
+        help="Enable fused weight gradient accumulation (true/false).",
+    )
     return parser.parse_args()
 
 
@@ -377,6 +425,13 @@ def main() -> None:
         print("Warning: activation recompute requested but not supported by this recipe/model.")
     if hasattr(finetune.model, "config"):
         _apply_yarn(finetune.model.config, args.seq_length)
+    grad_accum_fusion = _parse_bool(args.gradient_accumulation_fusion, default=False)
+    grad_applied = _apply_gradient_accumulation_fusion(finetune, grad_accum_fusion)
+    if not grad_applied:
+        print(
+            "Warning: gradient_accumulation_fusion flag not found in model config; "
+            "fused wgrad may still be enabled."
+        )
     if hasattr(finetune, "optim") and hasattr(finetune.optim, "config"):
         if hasattr(finetune.optim.config, "lr"):
             finetune.optim.config.lr = args.learning_rate
